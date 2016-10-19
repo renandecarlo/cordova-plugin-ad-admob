@@ -40,21 +40,22 @@ interface Plugin {
 interface PluginDelegate {
 	public void _setLicenseKey(String email, String licenseKey);
 	public void _setUp(String bannerAdUnit, String interstitialAdUnit, String rewardedVideoAdUnit, boolean isOverlap, boolean isTest);
-	public void _preloadBannerAd();
+	public void _preloadBannerAd(String size);
 	public void _showBannerAd(String position, String size);
+	public void _showBannerAd(String position, int posX, int posY, String size);
 	public void _reloadBannerAd();
 	public void _hideBannerAd();
 	public void _preloadInterstitialAd();
 	public void _showInterstitialAd();
 	public void _preloadRewardedVideoAd();
-	public void _showRewardedVideoAd();	
+	public void _showRewardedVideoAd();
     public void onPause(boolean multitasking);
     public void onResume(boolean multitasking);
     public void onDestroy();
 }
 
 public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin {
-	protected static final String LOG_TAG = "AdMobPlugin";	
+	protected static final String LOG_TAG = "AdMobPlugin";
 	protected CallbackContext callbackContextKeepCallback;
 	//
 	protected PluginDelegate pluginDelegate;
@@ -63,51 +64,51 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 	public String licenseKey;
 	public boolean validLicenseKey;
 	protected String TEST_BANNER_AD_UNIT = "ca-app-pub-4906074177432504/6997786077";
-	protected String TEST_INTERSTITIAL_AD_UNIT = "ca-app-pub-4906074177432504/8474519270";	
-	protected String TEST_REWARDED_VIDEO_AD_UNIT = "ca-app-pub-4906074177432504/2933446075";	
-	
+	protected String TEST_INTERSTITIAL_AD_UNIT = "ca-app-pub-4906074177432504/8474519270";
+	protected String TEST_REWARDED_VIDEO_AD_UNIT = "ca-app-pub-4906074177432504/2933446075";
+
     @Override
 	public void pluginInitialize() {
 		super.pluginInitialize();
 		//
-    }	
-	
+    }
+
 	//@Override
 	//public void onCreate(Bundle savedInstanceState) {//build error
 	//	super.onCreate(savedInstanceState);
 	//	//
 	//}
-	
+
 	//@Override
 	//public void onStart() {//build error
 	//	super.onStart();
 	//	//
 	//}
-	
+
   	@Override
-    public void onPause(boolean multitasking) {		
+    public void onPause(boolean multitasking) {
         super.onPause(multitasking);
-		pluginDelegate.onPause(multitasking);		
+		pluginDelegate.onPause(multitasking);
     }
-      
+
     @Override
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
         pluginDelegate.onResume(multitasking);
     }
-  	
+
 	//@Override
 	//public void onStop() {//build error
 	//	super.onStop();
 	//	//
 	//}
-	
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-		pluginDelegate.onDestroy();		
+		pluginDelegate.onDestroy();
     }
-	
+
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
@@ -115,15 +116,15 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 			setLicenseKey(action, args, callbackContext);
 
 			return true;
-		}			
+		}
 		else if (action.equals("setUp")) {
 			setUp(action, args, callbackContext);
 
 			return true;
-		}			
+		}
 		else if (action.equals("preloadBannerAd")) {
 			preloadBannerAd(action, args, callbackContext);
-			
+
 			return true;
 		}
 		else if (action.equals("showBannerAd")) {
@@ -131,46 +132,51 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 
 			return true;
 		}
+		else if (action.equals("showBannerAdAtXY")) {
+			showBannerAdAtXY(action, args, callbackContext);
+
+			return true;
+		}
 		else if (action.equals("reloadBannerAd")) {
 			reloadBannerAd(action, args, callbackContext);
-			
+
 			return true;
-		}			
+		}
 		else if (action.equals("hideBannerAd")) {
 			hideBannerAd(action, args, callbackContext);
-			
+
 			return true;
 		}
 		else if (action.equals("preloadInterstitialAd")) {
 			preloadInterstitialAd(action, args, callbackContext);
-			
+
 			return true;
 		}
 		else if (action.equals("showInterstitialAd")) {
 			showInterstitialAd(action, args, callbackContext);
-						
+
 			return true;
 		}
 		else if (action.equals("preloadRewardedVideoAd")) {
 			preloadRewardedVideoAd(action, args, callbackContext);
-			
+
 			return true;
 		}
 		else if (action.equals("showRewardedVideoAd")) {
 			showRewardedVideoAd(action, args, callbackContext);
-						
+
 			return true;
-		}		
-		
+		}
+
 		return false; // Returning false results in a "MethodNotFound" error.
 	}
-	
+
 	private void setLicenseKey(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		final String email = args.getString(0);
-		final String licenseKey = args.getString(1);				
-		Log.d(LOG_TAG, String.format("%s", email));			
+		final String licenseKey = args.getString(1);
+		Log.d(LOG_TAG, String.format("%s", email));
 		Log.d(LOG_TAG, String.format("%s", licenseKey));
-		
+
 		cordova.getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -178,7 +184,7 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 			}
 		});
 	}
-	
+
 	private void setUp(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		//Activity activity=cordova.getActivity();
 		//webView
@@ -194,35 +200,35 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 		//json.optString("interstitialAdUnit")
 		//JSONObject inJson = json.optJSONObject("inJson");
 		//final String bannerAdUnit = args.getString(0);
-		//final String interstitialAdUnit = args.getString(1);				
-		//final boolean isOverlap = args.getBoolean(2);				
+		//final String interstitialAdUnit = args.getString(1);
+		//final boolean isOverlap = args.getBoolean(2);
 		//final boolean isTest = args.getBoolean(3);
 		//final String[] zoneIds = new String[args.getJSONArray(4).length()];
 		//for (int i = 0; i < args.getJSONArray(4).length(); i++) {
 		//	zoneIds[i] = args.getJSONArray(4).getString(i);
-		//}			
-		//Log.d(LOG_TAG, String.format("%s", bannerAdUnit));			
+		//}
+		//Log.d(LOG_TAG, String.format("%s", bannerAdUnit));
 		//Log.d(LOG_TAG, String.format("%s", interstitialAdUnit));
 		//Log.d(LOG_TAG, String.format("%b", isOverlap));
-		//Log.d(LOG_TAG, String.format("%b", isTest));		
+		//Log.d(LOG_TAG, String.format("%b", isTest));
 		final String bannerAdUnit = args.getString(0);
-		final String interstitialAdUnit = args.getString(1);				
-		final String rewardedVideoAdUnit = args.getString(2);				
-		final boolean isOverlap = args.getBoolean(3);				
-		final boolean isTest = args.getBoolean(4);				
-		Log.d(LOG_TAG, String.format("%s", bannerAdUnit));			
+		final String interstitialAdUnit = args.getString(1);
+		final String rewardedVideoAdUnit = args.getString(2);
+		final boolean isOverlap = args.getBoolean(3);
+		final boolean isTest = args.getBoolean(4);
+		Log.d(LOG_TAG, String.format("%s", bannerAdUnit));
 		Log.d(LOG_TAG, String.format("%s", interstitialAdUnit));
 		Log.d(LOG_TAG, String.format("%s", rewardedVideoAdUnit));
 		Log.d(LOG_TAG, String.format("%b", isOverlap));
 		Log.d(LOG_TAG, String.format("%b", isTest));
-		
+
 		callbackContextKeepCallback = callbackContext;
-		
+
 		if(isOverlap)
 			pluginDelegate = new AdMobOverlap(this);
 		else
 			pluginDelegate = new AdMobSplit(this);
-		
+
 		cordova.getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -230,12 +236,16 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 			}
 		});
 	}
-	
+
 	private void preloadBannerAd(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+		final String size = args.getString(0);
+
+		Log.d(LOG_TAG, String.format("Preload %s", size));
+
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run() {
-				_preloadBannerAd();
+				_preloadBannerAd(size);
 			}
 		});
 	}
@@ -245,11 +255,29 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 		final String size = args.getString(1);
 		Log.d(LOG_TAG, String.format("%s", position));
 		Log.d(LOG_TAG, String.format("%s", size));
-	
+
 		cordova.getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				_showBannerAd(position, size);
+			}
+		});
+	}
+
+	private void showBannerAdAtXY(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+		final String position = args.getString(0);
+		final int posX = args.getInt(1);
+		final int posY = args.getInt(2);
+		final String size = args.getString(3);
+		Log.d(LOG_TAG, String.format("%s", position));
+		Log.d(LOG_TAG, String.format("%d", posX));
+		Log.d(LOG_TAG, String.format("%d", posY));
+		Log.d(LOG_TAG, String.format("%s", size));
+
+		cordova.getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				_showBannerAd(position, posX, posY, size);
 			}
 		});
 	}
@@ -262,7 +290,7 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 			}
 		});
 	}
-	
+
 	private void hideBannerAd(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
@@ -289,7 +317,7 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 			}
 		});
 	}
-	
+
 	private void preloadRewardedVideoAd(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
@@ -323,14 +351,14 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 	}
 
 	//cranberrygame end: Plugin
-	
+
 	//cranberrygame start: AdMobPluginDelegate
 
 	public void _setLicenseKey(String email, String licenseKey) {
 		//pluginDelegate._setLicenseKey(email, licenseKey);
 		this.email = email;
 		this.licenseKey = licenseKey;
-		
+
 		//
 		String str1 = Util.md5("cordova-plugin-: " + email);
 		String str2 = Util.md5("cordova-plugin-ad-admob: " + email);
@@ -345,7 +373,7 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 					this.validLicenseKey = false;
 					break;
 				}
-			}			
+			}
 			if (this.validLicenseKey)
 				Log.d(LOG_TAG, String.format("%s", "valid licenseKey"));
 			else
@@ -353,55 +381,59 @@ public class AdMobPlugin extends CordovaPlugin implements PluginDelegate, Plugin
 		}
 		else {
 			Log.d(LOG_TAG, String.format("%s", "invalid licenseKey"));
-			this.validLicenseKey = false;			
+			this.validLicenseKey = false;
 		}
 		//if (!this.validLicenseKey)
-		//	Util.alert(plugin.getCordova().getActivity(),"Cordova Admob: invalid email / license key. You can get free license key from https://play.google.com/store/apps/details?id=com.cranberrygame.pluginsforcordova");			
+		//	Util.alert(plugin.getCordova().getActivity(),"Cordova Admob: invalid email / license key. You can get free license key from https://play.google.com/store/apps/details?id=com.cranberrygame.pluginsforcordova");
 	}
-	
+
 	public void _setUp(String bannerAdUnit, String interstitialAdUnit, String rewardedVideoAdUnit, boolean isOverlap, boolean isTest) {
-		if (!validLicenseKey) {
-			if (new Random().nextInt(100) <= 1) {//0~99					
-				bannerAdUnit = TEST_BANNER_AD_UNIT;
-				interstitialAdUnit = TEST_INTERSTITIAL_AD_UNIT;
-				rewardedVideoAdUnit = TEST_REWARDED_VIDEO_AD_UNIT;
-			}
-		}
-			
+		// if (!validLicenseKey) {
+		// 	if (new Random().nextInt(100) <= 1) {//0~99
+		// 		bannerAdUnit = TEST_BANNER_AD_UNIT;
+		// 		interstitialAdUnit = TEST_INTERSTITIAL_AD_UNIT;
+		// 		rewardedVideoAdUnit = TEST_REWARDED_VIDEO_AD_UNIT;
+		// 	}
+		// }
+
 		pluginDelegate._setUp(bannerAdUnit, interstitialAdUnit, rewardedVideoAdUnit, isOverlap, isTest);
 	}
-	
-	public void _preloadBannerAd() {
-		pluginDelegate._preloadBannerAd();           	
+
+	public void _preloadBannerAd(String size) {
+		pluginDelegate._preloadBannerAd(size);
 	}
-		
+
 	public void _showBannerAd(String position, String size) {
-		pluginDelegate._showBannerAd(position, size);		
+		pluginDelegate._showBannerAd(position, 5, 5, size);
 	}
-	
+
+	public void _showBannerAd(String position, int posX, int posY, String size) {
+		pluginDelegate._showBannerAd(position, posX, posY, size);
+	}
+
 	public void _reloadBannerAd() {
 		pluginDelegate._reloadBannerAd();
 	}
-	
+
 	public void _hideBannerAd() {
 		pluginDelegate._hideBannerAd();
 	}
-		
+
 	public void _preloadInterstitialAd() {
 		pluginDelegate._preloadInterstitialAd();
 	}
-	
+
 	public void _showInterstitialAd() {
 		pluginDelegate._showInterstitialAd();
 	}
-	
+
 	public void _preloadRewardedVideoAd() {
 		pluginDelegate._preloadRewardedVideoAd();
 	}
-	
+
 	public void _showRewardedVideoAd() {
 		pluginDelegate._showRewardedVideoAd();
-	}	
+	}
 
 	//cranberrygame end: AdMobPluginDelegate
 }

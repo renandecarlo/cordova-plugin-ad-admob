@@ -28,6 +28,7 @@ import com.google.android.gms.ads.reward.RewardItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -49,18 +50,18 @@ class Util {
 
 	//ex) Util.alert(cordova.getActivity(),"message");
 	public static void alert(Activity activity, String message) {
-		AlertDialog ad = new AlertDialog.Builder(activity).create();  
-		ad.setCancelable(false); // This blocks the 'BACK' button  
-		ad.setMessage(message);  
-		ad.setButton("OK", new DialogInterface.OnClickListener() {  
-			@Override  
-			public void onClick(DialogInterface dialog, int which) {  
-				dialog.dismiss();                      
-			}  
-		});  
-		ad.show(); 		
+		AlertDialog ad = new AlertDialog.Builder(activity).create();
+		ad.setCancelable(false); // This blocks the 'BACK' button
+		ad.setMessage(message);
+		ad.setButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		ad.show();
 	}
-	
+
 	//https://gitshell.com/lvxudong/A530_packages_app_Camera/blob/master/src/com/android/camera/Util.java
 	public static int getDisplayRotation(Activity activity) {
 	    int rotation = activity.getWindowManager().getDefaultDisplay()
@@ -96,7 +97,7 @@ class Util {
 
 public class AdMobOverlap implements PluginDelegate {
 	protected static final String LOG_TAG = "AdMobOverlap";
-	protected Plugin plugin;	
+	protected Plugin plugin;
 	//
 	protected String bannerAdUnit;
 	protected String interstitialAdUnit;
@@ -104,40 +105,40 @@ public class AdMobOverlap implements PluginDelegate {
 	protected boolean isOverlap;
 	protected boolean isTest;
 	//
-	protected String bannerPreviousPosition;	
+	protected String bannerPreviousPosition;
 	protected String bannerPreviousSize;
 	protected int lastOrientation;
 	//
-	protected boolean bannerAdPreload;	
+	protected boolean bannerAdPreload;
 	protected boolean interstitialAdPreload;
-	protected boolean rewardedVideoAdPreload;	
+	protected boolean rewardedVideoAdPreload;
 	//admob
 	protected RelativeLayout bannerViewLayout;
 	protected AdView bannerView;
 	protected InterstitialAd interstitial;
 	protected RewardedVideoAd rewardedVideo;
-	
+
 	public AdMobOverlap(Plugin plugin_) {
 		plugin = plugin_;
 	}
 
 	public void _setLicenseKey(String email, String licenseKey) {
 	}
-	
+
 	public void _setUp(String bannerAdUnit, String interstitialAdUnit, String rewardedVideoAdUnit, boolean isOverlap, boolean isTest) {
 		this.bannerAdUnit = bannerAdUnit;
 		this.interstitialAdUnit = interstitialAdUnit;
-		this.rewardedVideoAdUnit = rewardedVideoAdUnit;		
+		this.rewardedVideoAdUnit = rewardedVideoAdUnit;
 		this.isOverlap = isOverlap;
-		this.isTest = isTest;			
-		
-		lastOrientation = -1;		
+		this.isTest = isTest;
+
+		lastOrientation = -1;
 		handleLayoutChangeOverlap();
-		
+
 		//_showBannerAd("bottom-center", "SMART_BANNER");//cocoon.io
-		//_showInterstitialAd();//cocoon.io		
+		//_showInterstitialAd();//cocoon.io
 	}
-	
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void handleLayoutChangeOverlap() {
 		//http://stackoverflow.com/questions/24539578/cordova-plugin-listening-to-device-orientation-change-is-it-possible
@@ -147,7 +148,7 @@ public class AdMobOverlap implements PluginDelegate {
 		//plugin.getWebView().getRootView().addOnLayoutChangeListener(new View.OnLayoutChangeListener(){//only for ~cordova4
 		//plugin.getWebView().getView().addOnLayoutChangeListener(new View.OnLayoutChangeListener(){//only for cordova5~
 		getView(plugin.getWebView()).addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
-				
+
 			@Override
 			public void onLayoutChange(View v, int left, int top, int right, int bottom,
 					int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -158,7 +159,7 @@ public class AdMobOverlap implements PluginDelegate {
 
 				Log.d(LOG_TAG, "onLayoutChange");
 				//Util.alert(cordova.getActivity(), "onLayoutChange");
-				
+
 				int orientation = Util.getDisplayRotation(plugin.getCordova().getActivity());
 				if(orientation != lastOrientation) {
 					Log.d(LOG_TAG, String.format("orientation: %d", orientation));
@@ -169,13 +170,13 @@ public class AdMobOverlap implements PluginDelegate {
 
 						//overlap
 						//http://stackoverflow.com/questions/11281562/android-admob-resize-on-landscape
-						if (bannerView != null) {							
+						if (bannerView != null) {
 							//if banner is showing
 							RelativeLayout bannerViewLayout = (RelativeLayout)bannerView.getParent();
 							if (bannerViewLayout != null) {
 								//bannerViewLayout.removeView(bannerView);
 								//bannerView.destroy();
-								//bannerView = null;				
+								//bannerView = null;
 								Log.d(LOG_TAG, String.format("position: %s, size: %s", bannerPreviousPosition, bannerPreviousSize));
 								//Util.alert(cordova.getActivity(), String.format("position: %s, size: %s", position, size));
 
@@ -188,57 +189,63 @@ public class AdMobOverlap implements PluginDelegate {
 									}
 								}, 1);//after 1ms
 							}
-						}						
+						}
 					}
 				}
-			
-				lastOrientation = orientation;		
-			}		    
-		});		
+
+				lastOrientation = orientation;
+			}
+		});
     }
 
-	public static View getView(CordovaWebView webView) {	
+	public static View getView(CordovaWebView webView) {
 		if(View.class.isAssignableFrom(CordovaWebView.class)) {
 			return (View) webView;
 		}
-		
+
 		try {
 			Method getViewMethod = CordovaWebView.class.getMethod("getView", (Class<?>[]) null);
 			if(getViewMethod != null) {
 				Object[] args = {};
 				return (View) getViewMethod.invoke(webView, args);
 			}
-		} 
+		}
 		catch (Exception e) {
 		}
-		
+
 		return null;
 	}
-	
-	public void _preloadBannerAd() {
+
+	public void _preloadBannerAd(String size) {
+		Log.d(LOG_TAG, "PRELOAD "+ size);
+
 		bannerAdPreload = true;
+		bannerPreviousSize = size;
 
 		_hideBannerAd();
-		
-		loadBannerAd();	            	
+		loadBannerAd();
 	}
-	
+
 	private void loadBannerAd() {
-	
+
 		//bannerView
 		if (bannerView == null) {
 			//
 			bannerView = new AdView(plugin.getCordova().getActivity());//
 			//
 			bannerView.setAdUnitId(this.bannerAdUnit);
-			bannerView.setAdListener(new MyBannerViewListener());		
+			bannerView.setAdListener(new MyBannerViewListener());
 			//https://developers.google.com/mobile-ads-sdk/docs/admob/android/banner
+
+			bannerView.setVerticalScrollBarEnabled(false);
+			bannerView.setHorizontalScrollBarEnabled(false);
+
 			if(bannerPreviousSize == null) {
 				bannerPreviousSize = "SMART_BANNER";
 			}
 			if (bannerPreviousSize.equals("BANNER")) {
 				bannerView.setAdSize(AdSize.BANNER);//Banner (320x50, Phones and Tablets)
-			} 
+			}
 			else if (bannerPreviousSize.equals("LARGE_BANNER")) {
 				bannerView.setAdSize(AdSize.LARGE_BANNER);//Large banner (320x100, Phones and Tablets)
 			}
@@ -256,111 +263,127 @@ public class AdMobOverlap implements PluginDelegate {
 			}
 			else {
 				bannerView.setAdSize(AdSize.SMART_BANNER);
-			}		
+			}
 		}
-			
+
 		//https://developer.android.com/reference/com/google/android/gms/ads/AdRequest.Builder.html
 		AdRequest.Builder builder = new AdRequest.Builder();
 		if(isTest) {
-			builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR); 
+			builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
 			//builder.addTestDevice("INSERT_YOUR_HASHED_DEVICE_ID_HERE");
 			//Java code to force all devices to show test ads
 			//http://stackoverflow.com/questions/9028852/java-code-to-force-all-devices-to-show-test-ads
 			String ANDROID_ID = Settings.Secure.getString(plugin.getCordova().getActivity().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 			String deviceId = Util.md5(ANDROID_ID).toUpperCase();
-			builder.addTestDevice(deviceId);		
+			builder.addTestDevice(deviceId);
 		}
 		AdRequest request = builder.build();
-		bannerView.loadAd(request);	            	
+
+		bannerView.loadAd(request);
+
+		bannerView.pause();
+		bannerView.setVisibility(View.GONE);
 	}
-	
+
 	public void _showBannerAd(String position, String size) {
-	
-		if (bannerIsShowingOverlap() && position.equals(bannerPreviousPosition) && size.equals(bannerPreviousSize)) {		
+		_showBannerAd(position, 6, 6, size);
+	}
+
+	public void _showBannerAd(String position, int posX, int posY, String size) {
+
+		if (bannerIsShowingOverlap() && position.equals(bannerPreviousPosition) && size.equals(bannerPreviousSize)) {
 			return;
 		}
-		
-		this.bannerPreviousPosition = position;	
+
+		if(!bannerAdPreload || !size.equals(bannerPreviousSize)) {
+			_preloadBannerAd(size);
+		}
+
+		this.bannerPreviousPosition = position;
 		this.bannerPreviousSize = size;
 
-		if(bannerAdPreload) {
-			bannerAdPreload = false;
-		}
-		else{
-			_hideBannerAd();
+		addBannerViewOverlap(position, posX, posY, size);
 
-			loadBannerAd();
-		}
-
-		addBannerViewOverlap(position, size);
-		
 		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onBannerAdShown");
 		pr.setKeepCallback(true);
 		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
 		//pr.setKeepCallback(true);
-		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);			
+		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 	}
-	
+
 	protected boolean bannerIsShowingOverlap() {
 		boolean bannerIsShowing = false;
-		if (bannerView != null) {							
+		if (bannerView != null && bannerView.getVisibility() != View.GONE) {
 			//if banner is showing
 			RelativeLayout bannerViewLayout = (RelativeLayout)bannerView.getParent();
 			if (bannerViewLayout != null) {
 				bannerIsShowing = true;
 			}
-		}				
-		
+		}
+
 		return bannerIsShowing;
 	}
-	
+
 	protected void addBannerViewOverlap(String position, String size) {
+		addBannerViewOverlap(position, 7, 7, size);
+	}
+
+	protected void addBannerViewOverlap(String position, int posX, int posY, String size) {
 		if(bannerViewLayout == null) {
-			bannerViewLayout = new RelativeLayout(plugin.getCordova().getActivity());//	
-			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+			bannerViewLayout = new RelativeLayout(plugin.getCordova().getActivity());//
+			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 			bannerViewLayout.setLayoutParams(params);
 			//plugin.getWebView().addView(bannerViewLayout, params);
 			//plugin.getWebView().addView(bannerViewLayout);//only for ~cordova4
 			//((ViewGroup)plugin.getWebView().getRootView()).addView(bannerViewLayout);//only for ~cordova4
 			//((ViewGroup)plugin.getWebView().getView()).addView(bannerViewLayout);//only for cordova5~
+
+			bannerViewLayout.setVerticalScrollBarEnabled(false);
+			bannerViewLayout.setHorizontalScrollBarEnabled(false);
+
 			((ViewGroup)getView(plugin.getWebView())).addView(bannerViewLayout);
 		}
-		
+
+		bannerView.resume();
+		bannerView.setVisibility(View.VISIBLE);
+
 		//http://tigerwoods.tistory.com/11
 		//http://developer.android.com/reference/android/widget/RelativeLayout.html
 		//http://stackoverflow.com/questions/24900725/admob-banner-poitioning-in-android-on-bottom-of-the-screen-using-no-xml-relative
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(AdView.LayoutParams.WRAP_CONTENT, AdView.LayoutParams.WRAP_CONTENT);
+		LayoutParams params = new LayoutParams(AdView.LayoutParams.WRAP_CONTENT, AdView.LayoutParams.WRAP_CONTENT);
+		// RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(600, 600);
+
 		if (position.equals("top-left")) {
-			Log.d(LOG_TAG, "top-left");		
+			Log.d(LOG_TAG, "top-left");
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);		
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		}
-		else if (position.equals("top-center")) {		
+		else if (position.equals("top-center")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}
-		else if (position.equals("top-right")) {		
+		else if (position.equals("top-right")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		}
 		else if (position.equals("left")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			params.addRule(RelativeLayout.CENTER_VERTICAL);			
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
 		else if (position.equals("center")) {
-			params.addRule(RelativeLayout.CENTER_HORIZONTAL);	
-			params.addRule(RelativeLayout.CENTER_VERTICAL);	
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
-		else if (position.equals("right")) {	
+		else if (position.equals("right")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			params.addRule(RelativeLayout.CENTER_VERTICAL);	
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
-		else if (position.equals("bottom-left")) {		
-			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);		
-			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);		
+		else if (position.equals("bottom-left")) {
+			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		}
-		else if (position.equals("bottom-center")) {				
+		else if (position.equals("bottom-center")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}
@@ -368,67 +391,84 @@ public class AdMobOverlap implements PluginDelegate {
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		}
-		else {		
+		else if (position.equals("custom")) {
+			// params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			// params.addRule(RelativeLayout.CENTER_VERTICAL);
+
+			// AdSize sz = bannerView.getAdSize();
+			// int bannerWidth = sz.getWidthInPixels(plugin.getCordova().getActivity());
+			// int bannerHeight = sz.getHeightInPixels(plugin.getCordova().getActivity());
+
+			params.leftMargin = posX;
+			params.topMargin = posY;
+			// plugin.getWebView().loadUrl("javascript:console.log('custom', 'X: "+ posX +"', 'Y: "+ posY +"', 'W: "+ bannerWidth +"', 'H: "+ bannerHeight +"');");
+		}
+		else {
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}
-	
-		//bannerViewLayout.addView(bannerView, params);
+
+		// bannerViewLayout.addView(bannerView, params);
 		bannerView.setLayoutParams(params);
 		bannerViewLayout.addView(bannerView);
+
 	}
-	
+
 	public void _reloadBannerAd() {
 		loadBannerAd();
 	}
-	
+
 	public void _hideBannerAd() {
 		removeBannerViewOverlap();
-		
+
 		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onBannerAdHidden");
 		pr.setKeepCallback(true);
 		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
 		//pr.setKeepCallback(true);
-		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);		
+		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 	}
-	
+
 	protected void removeBannerViewOverlap() {
 		if (bannerView == null)
 			return;
-			
+
 		RelativeLayout bannerViewLayout = (RelativeLayout)bannerView.getParent();
 		if (bannerViewLayout != null) {
 			bannerViewLayout.removeView(bannerView);
-			bannerView.destroy();
-			bannerView = null;				
+
+			bannerView.setVisibility(View.GONE);
+			bannerView.pause();
+
+			// bannerView.destroy();
+			// bannerView = null;
 		}
 	}
-	
+
 	public void _preloadInterstitialAd() {
 		interstitialAdPreload = true;
 
 		loadInterstitialAd();
 	}
-	
+
 	private void loadInterstitialAd() {
 		if (interstitial == null) {
 			interstitial = new InterstitialAd(plugin.getCordova().getActivity());
 			//
 			interstitial.setAdUnitId(this.interstitialAdUnit);
-			interstitial.setAdListener(new MyInterstitialListener());					
-		}		
-		
+			interstitial.setAdListener(new MyInterstitialListener());
+		}
+
 		AdRequest.Builder builder = new AdRequest.Builder();
 		if(isTest) {
-			builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR); 
-			//builder.addTestDevice("INSERT_YOUR_HASHED_DEVICE_ID_HERE");				
+			builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+			//builder.addTestDevice("INSERT_YOUR_HASHED_DEVICE_ID_HERE");
 			String ANDROID_ID = Settings.Secure.getString(plugin.getCordova().getActivity().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 			String deviceId = Util.md5(ANDROID_ID).toUpperCase();
-			builder.addTestDevice(deviceId);		
+			builder.addTestDevice(deviceId);
 		}
-		AdRequest request = builder.build();			
-		interstitial.loadAd(request);		
+		AdRequest request = builder.build();
+		interstitial.loadAd(request);
 	}
 
 	public void _showInterstitialAd() {
@@ -439,36 +479,36 @@ public class AdMobOverlap implements PluginDelegate {
 		}
 		else {
 			loadInterstitialAd();
-		}		
+		}
 	}
-    
+
 	public void _preloadRewardedVideoAd() {
 		rewardedVideoAdPreload = true;
 
 		loadRewardedVideoAd();
 	}
-	
+
 	public void loadRewardedVideoAd() {
 		if (rewardedVideo == null) {
 			//rewardedVideo = new RewardedVideoAd(plugin.getCordova().getActivity());
 			rewardedVideo = MobileAds.getRewardedVideoAdInstance(plugin.getCordova().getActivity());
 			//
 			//rewardedVideo.setAdUnitId(this.rewardedVideoAdUnit);
-			rewardedVideo.setRewardedVideoAdListener(new MyRewardedVideoListener());	
-		}		
-		
+			rewardedVideo.setRewardedVideoAdListener(new MyRewardedVideoListener());
+		}
+
 		AdRequest.Builder builder = new AdRequest.Builder();
 		if(isTest) {
-			builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR); 
-			//builder.addTestDevice("INSERT_YOUR_HASHED_DEVICE_ID_HERE");				
+			builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+			//builder.addTestDevice("INSERT_YOUR_HASHED_DEVICE_ID_HERE");
 			String ANDROID_ID = Settings.Secure.getString(plugin.getCordova().getActivity().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 			String deviceId = Util.md5(ANDROID_ID).toUpperCase();
-			builder.addTestDevice(deviceId);		
+			builder.addTestDevice(deviceId);
 		}
-		AdRequest request = builder.build();			
-		rewardedVideo.loadAd(this.rewardedVideoAdUnit, request);		
+		AdRequest request = builder.build();
+		rewardedVideo.loadAd(this.rewardedVideoAdUnit, request);
 	}
-	
+
 	public void _showRewardedVideoAd() {
 		if(rewardedVideoAdPreload) {
 			rewardedVideoAdPreload = false;
@@ -477,9 +517,9 @@ public class AdMobOverlap implements PluginDelegate {
 		}
 		else {
 			loadRewardedVideoAd();
-		}		
+		}
 	}
-	
+
    //http://developer.android.com/reference/com/google/android/gms/ads/AdListener.html
     class MyBannerViewListener extends AdListener {
 
@@ -494,7 +534,7 @@ public class AdMobOverlap implements PluginDelegate {
     			//pr.setKeepCallback(true);
     			//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		}
-    		
+
     		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onBannerAdLoaded");
     		pr.setKeepCallback(true);
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
@@ -520,7 +560,7 @@ public class AdMobOverlap implements PluginDelegate {
 
     	public void onAdLoaded() {
     		Log.d(LOG_TAG, "onAdLoaded");
-    		
+
     		if(interstitialAdPreload) {
     			PluginResult pr = new PluginResult(PluginResult.Status.OK, "onInterstitialAdPreloaded");
     			pr.setKeepCallback(true);
@@ -529,38 +569,38 @@ public class AdMobOverlap implements PluginDelegate {
     			//pr.setKeepCallback(true);
     			//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		}
-    		
+
     		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onInterstitialAdLoaded");
     		pr.setKeepCallback(true);
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
     		//pr.setKeepCallback(true);
-    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);		
-    		
+    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
+
     		if(!interstitialAdPreload) {
     			interstitial.show();
-    		}	
+    		}
     	}
-		
+
     	public void onAdFailedToLoad(int errorCode) {
     		Log.d(LOG_TAG, "onAdFailedToLoad");
     	}
-		
+
     	public void onAdLeftApplication() {
     		Log.d(LOG_TAG, "onAdLeftApplication");
     	}
-		
+
     	public void onAdOpened() {
     		Log.d(LOG_TAG, "onAdOpened");
-    		
+
     		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onInterstitialAdShown");
     		pr.setKeepCallback(true);
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
     		//pr.setKeepCallback(true);
-    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);		
+    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     	}
-		
+
     	public void onAdClosed() {
     		Log.d(LOG_TAG, "onAdClosed");
 
@@ -569,12 +609,12 @@ public class AdMobOverlap implements PluginDelegate {
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
     		//pr.setKeepCallback(true);
-    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);    		
+    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     	}
     }
 
 	class MyRewardedVideoListener implements RewardedVideoAdListener {
-		
+
 		@Override
 		public void onRewardedVideoAdFailedToLoad(int errorCode) {
 			Log.d(LOG_TAG, String.format("%s", "onRewardedVideoAdFailedToLoad"));
@@ -583,7 +623,7 @@ public class AdMobOverlap implements PluginDelegate {
 		@Override
 		public void onRewardedVideoAdLoaded() {
 			Log.d(LOG_TAG, String.format("%s", "onRewardedVideoAdLoaded"));
-		  
+
     		if(rewardedVideoAdPreload) {
     			PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRewardedVideoAdPreloaded");
     			pr.setKeepCallback(true);
@@ -592,17 +632,17 @@ public class AdMobOverlap implements PluginDelegate {
     			//pr.setKeepCallback(true);
     			//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		}
-    		
+
     		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRewardedVideoAdLoaded");
     		pr.setKeepCallback(true);
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
     		//pr.setKeepCallback(true);
-    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);		
-    		
+    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
+
     		if(!rewardedVideoAdPreload) {
 				rewardedVideo.show();
-    		}		  
+    		}
 		}
 
 		@Override
@@ -613,63 +653,63 @@ public class AdMobOverlap implements PluginDelegate {
 		@Override
 		public void onRewardedVideoStarted() {
 			Log.d(LOG_TAG, String.format("%s", "onRewardedVideoStarted"));
-		  
+
     		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRewardedVideoAdShown");
     		pr.setKeepCallback(true);
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
     		//pr.setKeepCallback(true);
-    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);		  
+    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 		}
 
 		@Override
 		public void onRewardedVideoAdClosed() {
 			Log.d(LOG_TAG, String.format("%s", "onRewardedVideoAdClosed"));
-		  
+
     		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRewardedVideoAdHidden");
     		pr.setKeepCallback(true);
     		plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
     		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
     		//pr.setKeepCallback(true);
-    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);		  
+    		//plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 		}
 
 		@Override
 		public void onRewardedVideoAdLeftApplication() {
 			Log.d(LOG_TAG, String.format("%s", "onRewardedVideoAdLeftApplication"));
 		}
-		
+
 		@Override
 		public void onRewarded(RewardItem reward) {
 			Log.d(LOG_TAG, String.format("%s", "onRewarded"));
-		  
+
 /*
       String obj = __getProductShortName();
       String json = String.format("{'adNetwork':'%s','adType':'%s','adEvent':'%s','rewardType':'%s','rewardAmount':%d}",
               obj, ADTYPE_REWARDVIDEO, EVENT_AD_PRESENT, reward.getType(), reward.getAmount());
-*/			  
-		  
+*/
+
 			PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRewardedVideoAdCompleted");
 			pr.setKeepCallback(true);
 			plugin.getCallbackContextKeepCallback().sendPluginResult(pr);
 			//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
 			//pr.setKeepCallback(true);
-			//callbackContextKeepCallback.sendPluginResult(pr);				  
-		}	
+			//callbackContextKeepCallback.sendPluginResult(pr);
+		}
 	}
-	
+
     public void onPause(boolean multitasking) {
 		if (bannerView != null) {
 		    bannerView.pause();
 		}
     }
-      
+
     public void onResume(boolean multitasking) {
         if (bannerView != null) {
             bannerView.resume();
         }
     }
-  	
+
     public void onDestroy() {
         if (bannerView != null) {
             bannerView.destroy();
